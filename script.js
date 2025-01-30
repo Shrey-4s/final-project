@@ -48,9 +48,14 @@ async function predict(inputImage) {
     // Predict the result
     try {
         let prediction = await model.predict(tensor).data();
-        console.log("Prediction output:", prediction); // Log raw prediction
-        let result = prediction[0] > 0.5 ? 'Mask' : 'No Mask';
-        console.log("Prediction result:", result); // Log result
+console.log("Prediction output:", prediction);
+
+// Get the index of the highest probability
+let maxIndex = prediction.indexOf(Math.max(...prediction));
+let result = maxIndex === 0 ? 'Mask' : 'No Mask';
+
+console.log("Prediction result:", result);
+
     } catch (error) {
         console.error("Error during prediction:", error);
     }    
