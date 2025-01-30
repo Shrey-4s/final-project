@@ -46,11 +46,14 @@ async function predict(inputImage) {
     console.log("Tensor shape:", tensor.shape);
 
     // Predict the result
-    let prediction = await model.predict(tensor).data();
-
-    console.log(prediction); // Log the raw prediction output
-
-    let result = prediction[0] > 0.5 ? 'Mask' : 'No Mask'; // Adjust threshold for classification
+    try {
+        let prediction = await model.predict(tensor).data();
+        console.log("Prediction output:", prediction); // Log raw prediction
+        let result = prediction[0] > 0.5 ? 'Mask' : 'No Mask';
+        console.log("Prediction result:", result); // Log result
+    } catch (error) {
+        console.error("Error during prediction:", error);
+    }    
 
     // Display prediction result
     document.getElementById('prediction').innerText = `Prediction: ${result}`;
