@@ -16,22 +16,28 @@ loadModel();
 navigator.mediaDevices.getUserMedia({ video: true })
     .then(stream => {
         video.srcObject = stream;
+    })
+    .catch(err => {
+        console.error("Webcam error:", err);
     });
 
 // Prediction function
 async function predict() {
     if (!model) return;
 
-    // Capture frame from webcam
+    // Capture frame
     ctx.drawImage(video, 0, 0, 640, 480);
     let img = ctx.getImageData(0, 0, 640, 480);
 
     // Preprocess image (resize to match model input size)
     let tensor = tf.browser.fromPixels(img)
-        .resizeNearestNeighbor([150, 150]) // Adjusted to 150x150, change based on model requirements
+        .resizeBilinear([150, 150]) // Adjusted resize to 150x150, as expected by the model
         .toFloat()
         .div(255.0) // Normalize pixel values
-        .expandDims(); // Add batch dimension
+        .expandDims(); // Add batch dimension (1, 150, 150, 3)
+
+    // Log tensor shape for debugging
+    console.log("Tensor shape:", tensor.shape); // Should log: [1, 150, 150, 3]
 
     // Predict the result
     let prediction = await model.predict(tensor).data();
@@ -42,7 +48,6 @@ async function predict() {
 
     if (isDetecting) requestAnimationFrame(predict); // Continue detecting if flag is true
 }
-
 
 // Toggle detection
 startBtn.addEventListener('click', () => {
