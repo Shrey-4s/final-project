@@ -47,6 +47,9 @@ async function predict(inputImage) {
 
     // Predict the result
     let prediction = await model.predict(tensor).data();
+
+    console.log(prediction); // Log the raw prediction output
+
     let result = prediction[0] > 0.5 ? 'Mask' : 'No Mask'; // Adjust threshold for classification
 
     // Display prediction result
