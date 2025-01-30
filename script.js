@@ -22,26 +22,27 @@ navigator.mediaDevices.getUserMedia({ video: true })
 async function predict() {
     if (!model) return;
 
-    // Capture frame
+    // Capture frame from webcam
     ctx.drawImage(video, 0, 0, 640, 480);
     let img = ctx.getImageData(0, 0, 640, 480);
 
-    // Preprocess image (adjust dimensions to match model input)
+    // Preprocess image (resize to match model input size)
     let tensor = tf.browser.fromPixels(img)
-        .resizeNearestNeighbor([224, 224]) // Example size, adjust as needed
+        .resizeNearestNeighbor([150, 150]) // Adjusted to 150x150, change based on model requirements
         .toFloat()
-        .div(255.0)
-        .expandDims();
+        .div(255.0) // Normalize pixel values
+        .expandDims(); // Add batch dimension
 
-    // Predict
+    // Predict the result
     let prediction = await model.predict(tensor).data();
-    let result = prediction[0] > 0.5 ? 'Mask' : 'No Mask'; // Adjust threshold
+    let result = prediction[0] > 0.5 ? 'Mask' : 'No Mask'; // Adjust threshold for classification
 
-    // Display result
+    // Display prediction result
     document.getElementById('prediction').innerText = `Prediction: ${result}`;
 
-    if (isDetecting) requestAnimationFrame(predict);
+    if (isDetecting) requestAnimationFrame(predict); // Continue detecting if flag is true
 }
+
 
 // Toggle detection
 startBtn.addEventListener('click', () => {
